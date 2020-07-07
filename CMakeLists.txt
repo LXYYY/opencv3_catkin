@@ -11,8 +11,8 @@ file(MAKE_DIRECTORY ${CATKIN_DEVEL_PREFIX}/include)
 
 SET(CONTRIB_NAME "opencv3_contrib")
 ExternalProject_Add(${CONTRIB_NAME}
-  URL https://github.com/opencv/opencv_contrib/archive/3.4.2.zip
-  URL_MD5 171a0c9eabbdc3332164de6221684beb
+  GIT_REPOSITORY https://github.com/opencv/opencv_contrib.git
+  GIT_TAG d3ea23c4582084761925b3a1dfdf3529210323ac
   SOURCE_DIR ${CONTRIB_NAME}_src
   UPDATE_COMMAND ""
   CONFIGURE_COMMAND ""
@@ -24,13 +24,13 @@ SET(OPENCV_SRC_PATH "opencv3_src")
 SET(OPENCV_BUILD_PATH "opencv3_build")
 ExternalProject_Add(opencv3_src
   DEPENDS ${CONTRIB_NAME}
-  URL https://github.com/opencv/opencv/archive/3.4.2.zip
-  URL_MD5 9e9ebe9c1fe98c468f6e53f5c3c49716
+  GIT_REPOSITORY https://github.com/opencv/opencv.git
+  GIT_TAG a84afb6334d3cc87fe091e614b8be3697899fc82
   UPDATE_COMMAND ""
   SOURCE_DIR ${OPENCV_SRC_PATH}
   BINARY_DIR ${OPENCV_BUILD_PATH}
-  PATCH_COMMAND patch -p0 < ${CMAKE_SOURCE_DIR}/fix_python_discovery.patch &&
-                patch -p1 < ${CMAKE_CURRENT_SOURCE_DIR}/rename_unordered_map_definition.patch
+#  PATCH_COMMAND patch -p0 < ${CMAKE_SOURCE_DIR}/fix_python_discovery.patch &&
+#                patch -p1 < ${CMAKE_CURRENT_SOURCE_DIR}/rename_unordered_map_definition.patch
   CONFIGURE_COMMAND cd ../${OPENCV_BUILD_PATH} && cmake
     -DOPENCV_EXTRA_MODULES_PATH=../${CONTRIB_NAME}_src/modules .
     -DWITH_TBB=ON
@@ -49,11 +49,16 @@ ExternalProject_Add(opencv3_src
     -DENABLE_PRECOMPILED_HEADERS=OFF
     -DCMAKE_INSTALL_PREFIX=${CATKIN_DEVEL_PREFIX}
     -DBUILD_SHARED_LIBS=ON
-    -DWITH_CUDA=OFF
+    -DWITH_CUDA=ON
+    -DWITH_CUDNN=ON
+    -DOPENCV_DNN_CUDA=ON
     -DWITH_OPENCL=OFF
     -DBUILD_TESTS=OFF
     -DBUILD_opencv_ts=OFF
     -DBUILD_TESTS=OFF
+    -DENABLE_FAST_MATH=1 
+    -DCUDA_FAST_MATH=1 
+    -DWITH_CUBLAS=1
     # opencv_contrib packages
     -DBUILD_opencv_dnn=OFF # Pulls in the system protobuf as a dependency!
     -DBUILD_opencv_dnns_easily_fooled=OFF
@@ -82,7 +87,7 @@ ExternalProject_Add(opencv3_src
     -DBUILD_opencv_surface_matching=OFF
     -DBUILD_opencv_text=OFF
     -DBUILD_opencv_tracking=OFF
-    -DBUILD_opencv_xfeatures2d=ON
+    -DBUILD_opencv_xfeatures2d=OFF
     -DBUILD_opencv_ximgproc=ON
     -DBUILD_opencv_xobjdetect=OFF
     -DBUILD_opencv_nonfree=OFF
